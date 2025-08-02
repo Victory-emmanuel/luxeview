@@ -1,73 +1,113 @@
-# Welcome to your Lovable project
+# LuxeView Elite - Luxury Real Estate Portfolio
 
-## Project info
+## About LuxeView Elite
 
-**URL**: https://lovable.dev/projects/7e84c356-7252-40a4-bcc0-b038e784ecd0
+**LuxeView Elite** represents the pinnacle of luxury real estate services, specializing in the world's most extraordinary properties. Our curated approach and white-glove service ensure that every client experience exceeds expectations.
 
-## How can I edit this code?
+## Project Overview
 
-There are several ways of editing your application.
+This is the official portfolio website for LuxeView Elite, showcasing our premium property listings, services, and expertise in the luxury real estate market.
 
-**Use Lovable**
+**Live Website**: [Coming Soon]
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7e84c356-7252-40a4-bcc0-b038e784ecd0) and start prompting.
+## Development Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v18 or higher)
+- npm or yarn package manager
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project directory
+cd luxeview-elite-portfolio
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The development server will start at `http://localhost:8080` with hot-reload enabled.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Available Scripts
 
-**Use GitHub Codespaces**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build for development
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Technology Stack
 
-## What technologies are used for this project?
+This project is built with modern web technologies:
 
-This project is built with:
+- **React 18** - Modern React with hooks and concurrent features
+- **TypeScript** - Type-safe development
+- **Vite** - Fast build tool and development server
+- **Tailwind CSS** - Utility-first CSS framework
+- **Shadcn/UI** - High-quality component library
+- **Framer Motion** - Smooth animations and transitions
+- **React Router** - Client-side routing
+- **TanStack Query** - Server state management
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Project Structure
 
-## How can I deploy this project?
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Shadcn/UI components
+│   └── ...             # Custom components
+├── data/               # Static data and content
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+├── pages/              # Page components
+├── types/              # TypeScript type definitions
+└── utils/              # Helper functions
+```
 
-Simply open [Lovable](https://lovable.dev/projects/7e84c356-7252-40a4-bcc0-b038e784ecd0) and click on Share -> Publish.
+## Features
 
-## Can I connect a custom domain to my Lovable project?
+- **Responsive Design** - Optimized for all devices
+- **Property Listings** - Showcase luxury properties
+- **Agent Profiles** - Meet our expert team
+- **Service Pages** - Detailed service offerings
+- **Contact Forms** - Lead generation and inquiries
+- **Performance Optimized** - Fast loading and smooth interactions
 
-Yes, you can!
+## Deployment
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The website can be deployed to any modern hosting platform that supports static sites:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Vercel
+- Netlify
+- AWS S3 + CloudFront
+- GitHub Pages
+
+Build the project for production:
+
+```sh
+npm run build
+```
+
+## Contributing
+
+This is a private project for LuxeView Elite. For internal development:
+
+1. Create a feature branch
+2. Make your changes
+3. Test thoroughly
+4. Submit a pull request
+
+## Contact
+
+For questions about this project, contact the LuxeView Elite development team.
+
+---
+
+© 2024 LuxeView Elite. All rights reserved.
