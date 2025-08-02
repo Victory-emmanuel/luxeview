@@ -1,10 +1,10 @@
-import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Clock } from 'lucide-react';
-import { companyInfo } from '@/data/company';
+import { motion } from "framer-motion";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { companyInfo } from "@/data/company";
 
 const ContactSection = () => {
   return (
-    <motion.section 
+    <motion.section
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
@@ -26,7 +26,8 @@ const ContactSection = () => {
             </h2>
             <div className="w-24 h-0.5 bg-accent mx-auto mb-8"></div>
             <p className="font-body text-xl text-text-primary/80 max-w-3xl mx-auto leading-relaxed">
-              Ready to begin your luxury real estate journey? Contact our expert team today.
+              Ready to begin your luxury real estate journey? Contact our expert
+              team today.
             </p>
           </motion.div>
 
@@ -44,7 +45,7 @@ const ContactSection = () => {
                 <h3 className="font-heading text-3xl text-text-primary mb-8 tracking-luxury">
                   Contact Information
                 </h3>
-                
+
                 <div className="space-y-6">
                   {/* Phone */}
                   <div className="flex items-start space-x-4">
@@ -144,7 +145,7 @@ const ContactSection = () => {
 
             {/* Quick Contact Form */}
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
@@ -153,7 +154,7 @@ const ContactSection = () => {
               <h3 className="font-heading text-3xl text-text-primary mb-8 tracking-luxury">
                 Quick Contact
               </h3>
-              
+
               <form className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
@@ -177,7 +178,7 @@ const ContactSection = () => {
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="font-body text-text-primary/80 text-sm uppercase tracking-wide mb-2 block">
                     Email
@@ -188,7 +189,7 @@ const ContactSection = () => {
                     placeholder="john@example.com"
                   />
                 </div>
-                
+
                 <div>
                   <label className="font-body text-text-primary/80 text-sm uppercase tracking-wide mb-2 block">
                     Phone
@@ -199,7 +200,7 @@ const ContactSection = () => {
                     placeholder="+1 (555) 123-4567"
                   />
                 </div>
-                
+
                 <div>
                   <label className="font-body text-text-primary/80 text-sm uppercase tracking-wide mb-2 block">
                     Message
@@ -210,13 +211,13 @@ const ContactSection = () => {
                     placeholder="Tell us about your luxury real estate needs..."
                   />
                 </div>
-                
+
                 <motion.button
                   type="submit"
-                  whileHover={{ 
+                  whileHover={{
                     backgroundColor: "hsl(var(--accent))",
                     color: "hsl(var(--text-secondary))",
-                    scale: 1.02
+                    scale: 1.02,
                   }}
                   className="w-full font-body text-accent border border-accent bg-transparent py-4 text-lg tracking-wide transition-all duration-300 hover:shadow-lg hover:shadow-accent/20"
                 >

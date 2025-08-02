@@ -1,58 +1,58 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { companyInfo } from '@/data/company';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { companyInfo } from "@/data/company";
 
 const Contact = () => {
   const [contactForm, setContactForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: '',
-    propertyInterest: ''
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+    propertyInterest: "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', contactForm);
+    console.log("Contact form submitted:", contactForm);
     // Handle form submission
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setContactForm(prev => ({ ...prev, [field]: value }));
+    setContactForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const offices = [
     {
-      name: 'Manhattan Office',
-      address: '432 Park Avenue, Suite 1500\nNew York, NY 10016',
-      phone: '+1 (212) 555-0123',
-      email: 'manhattan@luxeviewelite.com'
+      name: "Manhattan Office",
+      address: "432 Park Avenue, Suite 1500\nNew York, NY 10016",
+      phone: "+1 (212) 555-0123",
+      email: "manhattan@luxeviewelite.com",
     },
     {
-      name: 'Beverly Hills Office',
-      address: '9200 Sunset Boulevard, Suite 800\nBeverly Hills, CA 90210',
-      phone: '+1 (310) 555-0456',
-      email: 'beverlyhills@luxeviewelite.com'
+      name: "Beverly Hills Office",
+      address: "9200 Sunset Boulevard, Suite 800\nBeverly Hills, CA 90210",
+      phone: "+1 (310) 555-0456",
+      email: "beverlyhills@luxeviewelite.com",
     },
     {
-      name: 'Miami Office',
-      address: '1450 Brickell Avenue, Suite 2000\nMiami, FL 33131',
-      phone: '+1 (305) 555-0789',
-      email: 'miami@luxeviewelite.com'
-    }
+      name: "Miami Office",
+      address: "1450 Brickell Avenue, Suite 2000\nMiami, FL 33131",
+      phone: "+1 (305) 555-0789",
+      email: "miami@luxeviewelite.com",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-primary">
       <Navigation />
-      
+
       {/* Hero Section */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
@@ -67,7 +67,8 @@ const Contact = () => {
             </h1>
             <div className="w-24 h-0.5 bg-accent mx-auto mb-8"></div>
             <p className="font-body text-xl text-text-primary/80 leading-relaxed">
-              Ready to begin your luxury real estate journey? Our expert team is here to assist you every step of the way.
+              Ready to begin your luxury real estate journey? Our expert team is
+              here to assist you every step of the way.
             </p>
           </div>
         </div>
@@ -88,7 +89,7 @@ const Contact = () => {
                 <h2 className="font-heading text-3xl text-text-primary mb-8 tracking-luxury">
                   Send Us a Message
                 </h2>
-                
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
@@ -98,7 +99,9 @@ const Contact = () => {
                       <Input
                         type="text"
                         value={contactForm.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("firstName", e.target.value)
+                        }
                         className="bg-transparent border-accent/30 text-text-primary focus:border-accent"
                         required
                       />
@@ -110,7 +113,9 @@ const Contact = () => {
                       <Input
                         type="text"
                         value={contactForm.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("lastName", e.target.value)
+                        }
                         className="bg-transparent border-accent/30 text-text-primary focus:border-accent"
                         required
                       />
@@ -125,7 +130,9 @@ const Contact = () => {
                       <Input
                         type="email"
                         value={contactForm.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         className="bg-transparent border-accent/30 text-text-primary focus:border-accent"
                         required
                       />
@@ -137,7 +144,9 @@ const Contact = () => {
                       <Input
                         type="tel"
                         value={contactForm.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
                         className="bg-transparent border-accent/30 text-text-primary focus:border-accent"
                       />
                     </div>
@@ -149,15 +158,21 @@ const Contact = () => {
                     </label>
                     <select
                       value={contactForm.subject}
-                      onChange={(e) => handleInputChange('subject', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("subject", e.target.value)
+                      }
                       className="w-full bg-transparent border border-accent/30 rounded-lg px-3 py-2 text-text-primary focus:border-accent focus:outline-none"
                       required
                     >
                       <option value="">Select a subject</option>
                       <option value="buying">Buying a Property</option>
                       <option value="selling">Selling a Property</option>
-                      <option value="investment">Investment Opportunities</option>
-                      <option value="consultation">Schedule Consultation</option>
+                      <option value="investment">
+                        Investment Opportunities
+                      </option>
+                      <option value="consultation">
+                        Schedule Consultation
+                      </option>
                       <option value="general">General Inquiry</option>
                     </select>
                   </div>
@@ -170,7 +185,9 @@ const Contact = () => {
                       type="text"
                       placeholder="e.g., Manhattan Penthouse, Beverly Hills Estate"
                       value={contactForm.propertyInterest}
-                      onChange={(e) => handleInputChange('propertyInterest', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("propertyInterest", e.target.value)
+                      }
                       className="bg-transparent border-accent/30 text-text-primary focus:border-accent"
                     />
                   </div>
@@ -182,7 +199,9 @@ const Contact = () => {
                     <textarea
                       rows={6}
                       value={contactForm.message}
-                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("message", e.target.value)
+                      }
                       className="w-full bg-transparent border border-accent/30 rounded-lg px-3 py-2 text-text-primary focus:border-accent focus:outline-none resize-none"
                       placeholder="Tell us about your luxury real estate needs..."
                       required
@@ -201,7 +220,7 @@ const Contact = () => {
 
               {/* Contact Information */}
               <motion.div
-                initial={{ opacity: 0, x: 50 }}
+                initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.2 }}
@@ -211,7 +230,7 @@ const Contact = () => {
                   <h2 className="font-heading text-3xl text-text-primary mb-8 tracking-luxury">
                     Get In Touch
                   </h2>
-                  
+
                   <div className="space-y-6">
                     {/* Main Contact */}
                     <div className="flex items-start space-x-4">
@@ -278,11 +297,15 @@ const Contact = () => {
                     Quick Response Guarantee
                   </h3>
                   <p className="font-body text-text-primary/80 leading-relaxed mb-4">
-                    We understand that luxury real estate decisions are time-sensitive. Our team commits to responding to all inquiries within 2 hours during business hours.
+                    We understand that luxury real estate decisions are
+                    time-sensitive. Our team commits to responding to all
+                    inquiries within 2 hours during business hours.
                   </p>
                   <div className="flex items-center text-accent">
                     <Clock className="w-4 h-4 mr-2" />
-                    <span className="font-body text-sm">Average response time: 45 minutes</span>
+                    <span className="font-body text-sm">
+                      Average response time: 45 minutes
+                    </span>
                   </div>
                 </div>
               </motion.div>

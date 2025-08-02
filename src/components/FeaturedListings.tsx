@@ -1,102 +1,52 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import PropertyCard from "./PropertyCard";
 import { properties } from "@/data/properties";
-
-// Custom hook for responsive breakpoints
-const useResponsive = () => {
-  const [screenSize, setScreenSize] = useState<"mobile" | "tablet" | "desktop">(
-    "desktop"
-  );
-
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 768) {
-        setScreenSize("mobile");
-      } else if (width < 1024) {
-        setScreenSize("tablet");
-      } else {
-        setScreenSize("desktop");
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return screenSize;
-};
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const FeaturedListings = () => {
-  const screenSize = useResponsive();
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isPaused, setIsPaused] = useState(false);
 
-  // Responsive items per view
-  const getItemsPerView = () => {
-    switch (screenSize) {
-      case "mobile":
-        return 1;
-      case "tablet":
-        return 2;
-      case "desktop":
-        return 3;
-      default:
-        return 3;
+  const autoplayPlugin = Autoplay({
+    delay: 6000,
+    stopOnInteraction: true,
+    stopOnMouseEnter: true,
+  });
+
+  useEffect(() => {
+    if (!api) return;
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
+
+  const toggleAutoplay = () => {
+    if (!api) return;
+
+    if (isAutoPlaying) {
+      autoplayPlugin.stop();
+    } else {
+      autoplayPlugin.play();
     }
+    setIsAutoPlaying(!isAutoPlaying);
   };
 
-  const itemsPerView = getItemsPerView();
-  const totalSlides = Math.max(0, properties.length - itemsPerView + 1);
-
-  // Navigation functions
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  }, [totalSlides]);
-
-  const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  }, [totalSlides]);
-
-  const goToSlide = useCallback((index: number) => {
-    setCurrentSlide(index);
-  }, []);
-
-  // Auto-play functionality
-  useEffect(() => {
-    if (!isAutoPlaying || isPaused || totalSlides <= 1) return;
-
-    const interval = setInterval(nextSlide, 6000);
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, isPaused, nextSlide, totalSlides]);
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowLeft") {
-        prevSlide();
-      } else if (event.key === "ArrowRight") {
-        nextSlide();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [nextSlide, prevSlide]);
-
-  // Touch/Swipe support
-  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
-    const threshold = 50;
-    if (info.offset.x > threshold) {
-      prevSlide();
-    } else if (info.offset.x < -threshold) {
-      nextSlide();
-    }
-  };
   return (
     <motion.section
       initial={{ opacity: 0 }}
@@ -104,14 +54,12 @@ const FeaturedListings = () => {
       viewport={{ once: true }}
       transition={{ duration: 0.8 }}
       className="py-24 bg-primary"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       aria-label="Featured luxury properties carousel"
     >
       <div className="container mx-auto px-4">
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -10 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           className="font-heading text-5xl md:text-6xl text-center text-text-primary mb-16 tracking-luxury"
@@ -120,100 +68,131 @@ const FeaturedListings = () => {
         </motion.h2>
 
         {/* Carousel Container */}
-        <div className="relative">
-          {/* Navigation Arrows */}
-          {totalSlides > 1 && (
-            <>
-              <button
-                onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-primary/80 backdrop-blur-sm border border-accent-brand/30 rounded-full flex items-center justify-center text-accent-brand hover:bg-accent-brand hover:text-primary transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-accent-brand/50"
-                aria-label="Previous properties"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-primary/80 backdrop-blur-sm border border-accent-brand/30 rounded-full flex items-center justify-center text-accent-brand hover:bg-accent-brand hover:text-primary transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-accent-brand/50"
-                aria-label="Next properties"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </>
+        <div className="relative max-w-7xl mx-auto">
+          <Carousel
+            setApi={setApi}
+            className="w-full"
+            plugins={isAutoPlaying ? [autoplayPlugin] : []}
+            opts={{
+              align: "start",
+              loop: true,
+              slidesToScroll: 1,
+            }}
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {properties.map((property) => (
+                <CarouselItem
+                  key={property.id}
+                  className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3"
+                >
+                  <div className="p-1">
+                    <Link to={`/property/${property.id}`}>
+                      <motion.div
+                        whileHover={{
+                          scale: 1.02,
+                          transition: {
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 25,
+                          },
+                        }}
+                        className="relative h-96 rounded-lg overflow-hidden group cursor-pointer"
+                      >
+                        {/* Property Image */}
+                        <div
+                          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                          style={{ backgroundImage: `url(${property.image})` }}
+                        />
+
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                        {/* Content */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                          >
+                            <h3 className="font-heading text-2xl md:text-3xl mb-2 tracking-luxury">
+                              {property.price}
+                            </h3>
+                            <p className="font-body text-white/90 mb-4">
+                              {property.location}
+                            </p>
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                              <span className="inline-flex items-center font-body text-sm text-accent-brand uppercase tracking-wide">
+                                View Details →
+                              </span>
+                            </div>
+                          </motion.div>
+                        </div>
+
+                        {/* Status Badge */}
+                        {property.status && property.status !== "available" && (
+                          <div className="absolute top-4 left-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-body text-white uppercase tracking-wide ${
+                                property.status === "pending"
+                                  ? "bg-yellow-600"
+                                  : property.status === "sold"
+                                  ? "bg-red-600"
+                                  : "bg-green-600"
+                              }`}
+                            >
+                              {property.status}
+                            </span>
+                          </div>
+                        )}
+                      </motion.div>
+                    </Link>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+
+            {/* Navigation Arrows - Hidden on mobile */}
+            <CarouselPrevious className="hidden md:flex absolute -left-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary/80 backdrop-blur-sm border border-accent-brand/30 text-accent-brand hover:bg-accent-brand hover:text-primary transition-all duration-300 hover:scale-110" />
+            <CarouselNext className="hidden md:flex absolute -right-12 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary/80 backdrop-blur-sm border border-accent-brand/30 text-accent-brand hover:bg-accent-brand hover:text-primary transition-all duration-300 hover:scale-110" />
+          </Carousel>
+
+          {/* Dot Indicators */}
+          {count > 1 && (
+            <div className="flex justify-center mt-8 space-x-2">
+              {Array.from({ length: count }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => api?.scrollTo(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent-brand/50 ${
+                    index === current - 1
+                      ? "bg-accent-brand scale-110"
+                      : "bg-text-primary/30 hover:bg-text-primary/50 hover:scale-105"
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
           )}
 
-          {/* Carousel Track */}
-          <div className="overflow-hidden">
-            <motion.div
-              className="flex"
-              animate={{
-                x: `${-currentSlide * (100 / itemsPerView)}%`,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-              }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              onDragEnd={handleDragEnd}
-              style={{
-                width: `${(properties.length / itemsPerView) * 100}%`,
-              }}
+          {/* Auto-play Controls */}
+          <div className="text-center mt-8">
+            <button
+              onClick={toggleAutoplay}
+              className="font-body text-text-primary/60 text-sm tracking-wide hover:text-accent-brand transition-colors focus:outline-none focus:ring-2 focus:ring-accent-brand/50 rounded px-2 py-1"
+              aria-label={
+                isAutoPlaying ? "Pause auto-play" : "Resume auto-play"
+              }
             >
-              {properties.map((property) => (
-                <div
-                  key={property.id}
-                  className="flex-shrink-0"
-                  style={{ width: `${100 / properties.length}%` }}
-                >
-                  <div className="px-2">
-                    <PropertyCard
-                      image={property.image}
-                      price={property.price}
-                      location={property.location}
-                    />
-                  </div>
-                </div>
-              ))}
-            </motion.div>
+              {isAutoPlaying ? "Pause Auto-play" : "Resume Auto-play"} • Swipe
+              or use arrows to navigate
+            </button>
           </div>
-        </div>
 
-        {/* Dot Indicators */}
-        {totalSlides > 1 && (
-          <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: totalSlides }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent-brand/50 ${
-                  index === currentSlide
-                    ? "bg-accent-brand scale-110"
-                    : "bg-text-primary/30 hover:bg-text-primary/50 hover:scale-105"
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
+          {/* Screen Reader Announcements */}
+          <div className="sr-only" aria-live="polite" aria-atomic="true">
+            Showing slide {current} of {count}
           </div>
-        )}
-
-        {/* Auto-play Controls */}
-        <div className="text-center mt-8">
-          <button
-            onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-            className="font-body text-text-primary/60 text-sm tracking-wide hover:text-accent-brand transition-colors focus:outline-none focus:ring-2 focus:ring-accent-brand/50 rounded px-2 py-1"
-            aria-label={isAutoPlaying ? "Pause auto-play" : "Resume auto-play"}
-          >
-            {isAutoPlaying ? "Pause Auto-play" : "Resume Auto-play"} • Swipe or
-            use arrows to navigate
-          </button>
-        </div>
-
-        {/* Screen Reader Announcements */}
-        <div className="sr-only" aria-live="polite" aria-atomic="true">
-          Showing properties {currentSlide + 1} to{" "}
-          {Math.min(currentSlide + itemsPerView, properties.length)} of{" "}
-          {properties.length}
         </div>
       </div>
     </motion.section>
