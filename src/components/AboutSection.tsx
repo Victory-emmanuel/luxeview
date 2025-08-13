@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion';
-import { companyInfo } from '@/data/company';
+import { motion } from "framer-motion";
+import { companyInfo } from "@/data/company";
 
 const AboutSection = () => {
   return (
-    <motion.section 
+    <motion.section
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
@@ -47,7 +47,7 @@ const AboutSection = () => {
                   {companyInfo.mission}
                 </p>
               </div>
-              
+
               <div>
                 <h3 className="font-heading text-3xl text-text-secondary mb-4 tracking-luxury">
                   Our Vision
@@ -60,7 +60,7 @@ const AboutSection = () => {
 
             {/* Stats & Achievements */}
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
@@ -75,7 +75,7 @@ const AboutSection = () => {
                     Years of Excellence
                   </div>
                 </div>
-                
+
                 <div className="text-center">
                   <div className="font-heading text-4xl text-accent mb-2">
                     $2.5B+
@@ -84,7 +84,7 @@ const AboutSection = () => {
                     Properties Sold
                   </div>
                 </div>
-                
+
                 <div className="text-center">
                   <div className="font-heading text-4xl text-accent mb-2">
                     500+
@@ -93,7 +93,7 @@ const AboutSection = () => {
                     Satisfied Clients
                   </div>
                 </div>
-                
+
                 <div className="text-center">
                   <div className="font-heading text-4xl text-accent mb-2">
                     98%
@@ -109,9 +109,10 @@ const AboutSection = () => {
                   Founded in {companyInfo.founded}
                 </h4>
                 <p className="font-body text-text-secondary/80 leading-relaxed">
-                  LuxeView Elite was established with a vision to redefine luxury real estate. 
-                  Our commitment to excellence and personalized service has made us the trusted 
-                  choice for discerning clients worldwide.
+                  LuxeView Elite was established with a vision to redefine
+                  luxury real estate. Our commitment to excellence and
+                  personalized service has made us the trusted choice for
+                  discerning clients worldwide.
                 </p>
               </div>
             </motion.div>
