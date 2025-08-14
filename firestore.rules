@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection - users can read/write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Properties collection - admin users can manage properties, all authenticated users can read
+    match /properties/{propertyId} {
+      // Allow all authenticated users to read properties (for browsing)
+      allow read: if request.auth != null;
+      
+      // Allow admin users to create, update, and delete properties
+      allow create, update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Inquiries collection - users can create inquiries, admins can manage them
+    match /inquiries/{inquiryId} {
+      // Allow authenticated users to create inquiries
+      allow create: if request.auth != null;
+      
+      // Allow users to read their own inquiries
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+      
+      // Allow admins to update and delete inquiries
+      allow update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Appointments collection - similar to inquiries
+    match /appointments/{appointmentId} {
+      // Allow authenticated users to create appointments
+      allow create: if request.auth != null;
+      
+      // Allow users to read their own appointments, admins can read all
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+      
+      // Allow admins to update and delete appointments
+      allow update, delete: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Analytics collection - admin only
+    match /analytics/{document} {
+      allow read, write: if request.auth != null && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Chat/Messages collection - users can manage their own conversations
+    match /chats/{chatId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid in resource.data.participants ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+    }
+    
+    // Messages subcollection
+    match /chats/{chatId}/messages/{messageId} {
+      allow read, write: if request.auth != null && 
+        (request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+    }
+  }
+}

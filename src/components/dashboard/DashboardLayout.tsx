@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Home,
   Building,
@@ -15,11 +15,11 @@ import {
   Heart,
   Clock,
   User,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useAuth } from '@/contexts/AuthContext';
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -34,36 +34,53 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate('/');
+      navigate("/");
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 
   const adminNavItems = [
-    { name: 'Dashboard', path: '/dashboard/admin', icon: Home },
-    { name: 'Properties', path: '/dashboard/admin/properties', icon: Building },
-    { name: 'Users', path: '/dashboard/admin/users', icon: Users },
-    { name: 'Inquiries', path: '/dashboard/admin/inquiries', icon: MessageSquare },
-    { name: 'Appointments', path: '/dashboard/admin/appointments', icon: Calendar },
-    { name: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
+    { name: "Dashboard", path: "/dashboard/admin", icon: Home },
+    { name: "Properties", path: "/dashboard/admin/properties", icon: Building },
+    { name: "Users", path: "/dashboard/admin/users", icon: Users },
+    {
+      name: "Inquiries",
+      path: "/dashboard/admin/inquiries",
+      icon: MessageSquare,
+    },
+    {
+      name: "Appointments",
+      path: "/dashboard/admin/appointments",
+      icon: Calendar,
+    },
+    { name: "Analytics", path: "/dashboard/admin/analytics", icon: BarChart3 },
   ];
 
   const clientNavItems = [
-    { name: 'Dashboard', path: '/dashboard/client', icon: Home },
-    { name: 'Saved Properties', path: '/dashboard/client/saved', icon: Heart },
-    { name: 'Viewing History', path: '/dashboard/client/history', icon: Clock },
-    { name: 'Appointments', path: '/dashboard/client/appointments', icon: Calendar },
-    { name: 'Preferences', path: '/dashboard/client/preferences', icon: Settings },
+    { name: "Dashboard", path: "/dashboard/client", icon: Home },
+    { name: "Saved Properties", path: "/dashboard/client/saved", icon: Heart },
+    { name: "Viewing History", path: "/dashboard/client/history", icon: Clock },
+    {
+      name: "Appointments",
+      path: "/dashboard/client/appointments",
+      icon: Calendar,
+    },
+    {
+      name: "Preferences",
+      path: "/dashboard/client/preferences",
+      icon: Settings,
+    },
   ];
 
-  const navItems = userProfile?.role === 'admin' ? adminNavItems : clientNavItems;
+  const navItems =
+    userProfile?.role === "admin" ? adminNavItems : clientNavItems;
 
   const isActive = (path: string) => location.pathname === path;
 
   const sidebarVariants = {
     open: { x: 0 },
-    closed: { x: '-100%' },
+    closed: { x: "-100%" },
   };
 
   return (
@@ -84,7 +101,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       {/* Sidebar */}
       <motion.aside
         variants={sidebarVariants}
-        animate={sidebarOpen ? 'open' : 'closed'}
+        animate={sidebarOpen ? "open" : "closed"}
         className="fixed lg:static inset-y-0 left-0 z-50 w-64 bg-primary border-r border-accent/20 lg:translate-x-0"
       >
         <div className="flex flex-col h-full">
@@ -107,17 +124,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="p-6 border-b border-accent/20">
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={user?.photoURL || ''} alt={user?.displayName || ''} />
+                <AvatarImage
+                  src={user?.photoURL || ""}
+                  alt={user?.displayName || ""}
+                />
                 <AvatarFallback className="bg-accent text-primary">
-                  {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                  {user?.displayName?.charAt(0) ||
+                    user?.email?.charAt(0) ||
+                    "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text-primary truncate">
-                  {user?.displayName || 'User'}
+                  {user?.displayName || "User"}
                 </p>
                 <p className="text-xs text-accent capitalize">
-                  {userProfile?.role || 'client'}
+                  {userProfile?.role || "client"}
                 </p>
               </div>
             </div>
@@ -134,8 +156,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                     isActive(item.path)
-                      ? 'bg-accent/10 text-accent'
-                      : 'text-text-primary hover:bg-accent/5 hover:text-accent'
+                      ? "bg-accent/10 text-accent"
+                      : "text-text-primary hover:bg-accent/5 hover:text-accent"
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -179,10 +201,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               </button>
               <div>
                 <h1 className="font-heading text-2xl text-text-primary">
-                  {userProfile?.role === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
+                  {userProfile?.role === "admin"
+                    ? "Admin Dashboard"
+                    : "My Dashboard"}
                 </h1>
                 <p className="text-sm text-text-primary/70 font-body">
-                  Welcome back, {user?.displayName || 'User'}
+                  Welcome back, {user?.displayName || "User"}
                 </p>
               </div>
             </div>
@@ -200,9 +224,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 p-4 lg:p-6 overflow-auto">{children}</main>
       </div>
     </div>
   );
