@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Building,
@@ -14,13 +14,44 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// Note: Using real data from Firebase instead of mock data
+import { getProperties, getPropertiesCount } from "@/lib/propertyService";
+import { Property } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminDashboard: React.FC = () => {
+  const { user } = useAuth();
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [totalProperties, setTotalProperties] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // Get total properties count
+        const count = await getPropertiesCount({});
+        setTotalProperties(count || 0);
+
+        // Get recent properties (last 5)
+        const { properties: recentProperties } = await getProperties({}, 5);
+        setProperties(recentProperties || []);
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-NG", {
       style: "currency",
-      currency: "USD",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(amount);
   };
@@ -36,14 +67,14 @@ const AdminDashboard: React.FC = () => {
   const stats = [
     {
       title: "Total Properties",
-      value: "0", // Will be updated with real data
+      value: loading ? "..." : totalProperties.toString(),
       icon: Building,
       color: "text-blue-400",
       bgColor: "bg-blue-400/10",
     },
     {
       title: "Total Users",
-      value: "0", // Will be updated with real data
+      value: "0", // TODO: Implement user count from Firebase Auth
       icon: Users,
       color: "text-green-400",
       bgColor: "bg-green-400/10",
@@ -127,20 +158,35 @@ const AdminDashboard: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {recentProperties.length > 0 ? (
-                  recentProperties.map((property) => (
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+                    <p className="text-text-primary/70 font-body">
+                      Loading properties...
+                    </p>
+                  </div>
+                ) : properties.length > 0 ? (
+                  properties.map((property) => (
                     <div
                       key={property.id}
                       className="flex items-center space-x-4 p-3 rounded-lg border border-accent/10 hover:border-accent/20 transition-colors"
                     >
-                      <img
-                        src={property.image}
-                        alt={property.title}
-                        className="w-16 h-16 rounded-lg object-cover"
-                      />
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-accent/10">
+                        {property.images && property.images.length > 0 ? (
+                          <img
+                            src={property.images[0]}
+                            alt={property.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Building className="w-8 h-8 text-accent" />
+                          </div>
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-text-primary font-body font-medium truncate">
-                          {property.title}
+                          {property.name}
                         </h4>
                         <p className="text-text-primary/70 text-sm">
                           {property.location}

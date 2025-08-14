@@ -3,12 +3,36 @@ import { motion } from "framer-motion";
 import {
   Plus,
   Building,
+  MapPin,
+  DollarSign,
+  Bed,
+  Bath,
+  Square,
+  Eye,
+  Edit,
+  Trash2,
+  MoreHorizontal,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,11 +45,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/sonner";
 
-import {
-  Property,
-  PropertyFilters,
-  PropertyStatus,
-} from "@/types";
+import { Property, PropertyFilters, PropertyStatus } from "@/types";
 import {
   getProperties,
   deleteProperty,
@@ -48,7 +68,9 @@ const PropertyManagement: React.FC = () => {
     status: undefined,
   });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null);
+  const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(
+    null
+  );
   const [totalCount, setTotalCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -343,7 +365,9 @@ const PropertyManagement: React.FC = () => {
               ) : properties.length === 0 ? (
                 <div className="text-center py-8">
                   <Building className="w-12 h-12 text-text-primary/40 mx-auto mb-4" />
-                  <p className="text-text-primary/70 font-body">No properties found</p>
+                  <p className="text-text-primary/70 font-body">
+                    No properties found
+                  </p>
                   <Button
                     onClick={handleCreateProperty}
                     className="mt-4 bg-accent hover:bg-accent/90 text-primary"
@@ -357,7 +381,159 @@ const PropertyManagement: React.FC = () => {
                   <p className="text-text-primary/70 font-body mb-4">
                     Found {properties.length} properties
                   </p>
-                  {/* Table will be rendered here */}
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-accent/20">
+                        <TableHead className="text-text-primary font-body">
+                          Property
+                        </TableHead>
+                        <TableHead className="text-text-primary font-body">
+                          Location
+                        </TableHead>
+                        <TableHead className="text-text-primary font-body">
+                          Type
+                        </TableHead>
+                        <TableHead className="text-text-primary font-body">
+                          Price
+                        </TableHead>
+                        <TableHead className="text-text-primary font-body">
+                          Status
+                        </TableHead>
+                        <TableHead className="text-text-primary font-body">
+                          Details
+                        </TableHead>
+                        <TableHead className="text-text-primary font-body">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {properties.map((property) => (
+                        <TableRow
+                          key={property.id}
+                          className="border-accent/20 hover:bg-accent/5"
+                        >
+                          <TableCell>
+                            <div className="flex items-center space-x-3">
+                              <div className="w-12 h-12 rounded-lg overflow-hidden bg-accent/10">
+                                {property.images &&
+                                property.images.length > 0 ? (
+                                  <img
+                                    src={property.images[0]}
+                                    alt={property.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <Building className="w-6 h-6 text-accent" />
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <p className="font-body text-text-primary font-medium">
+                                  {property.name}
+                                </p>
+                                <p className="text-sm text-text-primary/70 font-body">
+                                  {property.neighborhood}
+                                </p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <MapPin className="w-4 h-4 text-accent" />
+                              <span className="text-text-primary font-body text-sm">
+                                {property.location}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <Badge
+                                variant="outline"
+                                className="border-accent/30 text-accent"
+                              >
+                                {property.propertyType}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className="border-accent/30 text-accent"
+                              >
+                                {property.purchaseType}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="w-4 h-4 text-accent" />
+                              <span className="font-body text-text-primary font-medium">
+                                {formatPrice(property.price)}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(property.status)}>
+                              {property.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-4 text-sm text-text-primary/70">
+                              <div className="flex items-center space-x-1">
+                                <Bed className="w-4 h-4" />
+                                <span>{property.bedrooms}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Bath className="w-4 h-4" />
+                                <span>{property.bathrooms}</span>
+                              </div>
+                              <div className="flex items-center space-x-1">
+                                <Square className="w-4 h-4" />
+                                <span>{property.sqft} sqft</span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0 text-text-primary hover:bg-accent/10"
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="bg-primary border-accent/20"
+                              >
+                                <DropdownMenuItem
+                                  onClick={() => handleViewProperty(property)}
+                                  className="text-text-primary hover:bg-accent/10 cursor-pointer"
+                                >
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleEditProperty(property)}
+                                  className="text-text-primary hover:bg-accent/10 cursor-pointer"
+                                >
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => openDeleteDialog(property)}
+                                  className="text-red-400 hover:bg-red-500/10 cursor-pointer"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </CardContent>
@@ -373,7 +549,8 @@ const PropertyManagement: React.FC = () => {
               Delete Property
             </AlertDialogTitle>
             <AlertDialogDescription className="text-text-primary/70 font-body">
-              Are you sure you want to delete "{propertyToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete "{propertyToDelete?.name}"? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

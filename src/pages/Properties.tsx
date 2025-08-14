@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/components/Navigation";
 import PropertyFilter from "@/components/PropertyFilter";
 import PropertyListCard from "@/components/PropertyListCard";
 import Footer from "@/components/Footer";
-import { properties } from "@/data/properties";
 import { Property } from "@/types";
+import { getProperties } from "@/lib/propertyService";
 
 const Properties = () => {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<"grid" | "list">("grid");
   const [filters, setFilters] = useState({
     searchTerm: "",
@@ -19,6 +21,24 @@ const Properties = () => {
     status: "",
   });
   const [sortBy, setSortBy] = useState("price-desc");
+
+  // Load properties from Firebase
+  useEffect(() => {
+    const loadProperties = async () => {
+      try {
+        setLoading(true);
+        const { properties: fetchedProperties } = await getProperties({}, 50);
+        setProperties(fetchedProperties || []);
+      } catch (error) {
+        console.error("Error loading properties:", error);
+        setProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProperties();
+  }, []);
 
   // Filter and sort properties
   const filteredProperties = useMemo(() => {

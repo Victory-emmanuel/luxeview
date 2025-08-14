@@ -1,70 +1,99 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Heart, Clock, Calendar, MapPin, DollarSign, Home, Eye } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
-  mockSavedProperties,
-  mockViewingHistory,
-  mockAppointments,
-  mockClientPreferences,
-} from '@/data/mockData';
+  Heart,
+  Clock,
+  Calendar,
+  MapPin,
+  DollarSign,
+  Home,
+  Eye,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Property } from "@/types";
+import { getProperties } from "@/lib/propertyService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ClientDashboard: React.FC = () => {
+  const { user } = useAuth();
+  const [recentProperties, setRecentProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRecentProperties = async () => {
+      try {
+        setLoading(true);
+        const { properties } = await getProperties({ status: "available" }, 3);
+        setRecentProperties(properties || []);
+      } catch (error) {
+        console.error("Error loading recent properties:", error);
+        setRecentProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      loadRecentProperties();
+    }
+  }, [user]);
+
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     }).format(date);
   };
 
   const stats = [
     {
-      title: 'Saved Properties',
-      value: mockSavedProperties.length,
+      title: "Saved Properties",
+      value: 0, // TODO: Implement saved properties functionality
       icon: Heart,
-      color: 'text-red-400',
-      bgColor: 'bg-red-400/10',
+      color: "text-red-400",
+      bgColor: "bg-red-400/10",
     },
     {
-      title: 'Properties Viewed',
-      value: mockViewingHistory.length,
+      title: "Properties Viewed",
+      value: 0, // TODO: Implement viewing history functionality
       icon: Eye,
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-400/10',
+      color: "text-blue-400",
+      bgColor: "bg-blue-400/10",
     },
     {
-      title: 'Scheduled Appointments',
-      value: mockAppointments.filter(apt => apt.status === 'scheduled').length,
+      title: "Scheduled Appointments",
+      value: 0, // TODO: Implement appointments functionality
       icon: Calendar,
-      color: 'text-green-400',
-      bgColor: 'bg-green-400/10',
+      color: "text-green-400",
+      bgColor: "bg-green-400/10",
     },
     {
-      title: 'Price Range',
-      value: `${formatCurrency(mockClientPreferences.priceRange.min)} - ${formatCurrency(mockClientPreferences.priceRange.max)}`,
+      title: "Price Range",
+      value: `${formatCurrency(
+        mockClientPreferences.priceRange.min
+      )} - ${formatCurrency(mockClientPreferences.priceRange.max)}`,
       icon: DollarSign,
-      color: 'text-accent',
-      bgColor: 'bg-accent/10',
+      color: "text-accent",
+      bgColor: "bg-accent/10",
     },
   ];
 
-  const upcomingAppointments = mockAppointments.filter(
-    (apt) => apt.status === 'scheduled'
-  ).slice(0, 2);
+  // TODO: Implement appointments functionality
+  const upcomingAppointments: any[] = [];
 
   return (
     <DashboardLayout>
@@ -80,13 +109,21 @@ const ClientDashboard: React.FC = () => {
             Welcome to Your Property Journey
           </h2>
           <p className="text-text-primary/70 font-body mb-4">
-            Discover luxury properties tailored to your preferences and manage your real estate journey.
+            Discover luxury properties tailored to your preferences and manage
+            your real estate journey.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild className="bg-accent hover:bg-accent/90 text-primary">
+            <Button
+              asChild
+              className="bg-accent hover:bg-accent/90 text-primary"
+            >
               <Link to="/properties">Browse Properties</Link>
             </Button>
-            <Button asChild variant="outline" className="border-accent/30 text-accent">
+            <Button
+              asChild
+              variant="outline"
+              className="border-accent/30 text-accent"
+            >
               <Link to="/dashboard/client/preferences">Update Preferences</Link>
             </Button>
           </div>
@@ -140,39 +177,76 @@ const ClientDashboard: React.FC = () => {
                     <Heart className="w-5 h-5 text-red-400" />
                     <span>Saved Properties</span>
                   </div>
-                  <Button asChild variant="outline" size="sm" className="border-accent/30 text-accent">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="border-accent/30 text-accent"
+                  >
                     <Link to="/dashboard/client/saved">View All</Link>
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {mockSavedProperties.map((property) => (
-                  <div
-                    key={property.id}
-                    className="flex items-center space-x-4 p-3 rounded-lg border border-accent/10 hover:border-accent/20 transition-colors"
-                  >
-                    <img
-                      src={property.image}
-                      alt={property.title}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-text-primary font-body font-medium truncate">
-                        {property.title}
-                      </h4>
-                      <div className="flex items-center space-x-1 text-text-primary/70 text-sm">
-                        <MapPin className="w-3 h-3" />
-                        <span>{property.location}</span>
-                      </div>
-                      <p className="text-accent font-medium">
-                        {formatCurrency(property.price)}
-                      </p>
-                    </div>
-                    <Button size="sm" variant="outline" className="border-accent/30 text-accent">
-                      View
-                    </Button>
+                {loading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+                    <p className="text-text-primary/70 font-body">
+                      Loading recent properties...
+                    </p>
                   </div>
-                ))}
+                ) : recentProperties.length > 0 ? (
+                  recentProperties.map((property) => (
+                    <div
+                      key={property.id}
+                      className="flex items-center space-x-4 p-3 rounded-lg border border-accent/10 hover:border-accent/20 transition-colors"
+                    >
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-accent/10">
+                        {property.images && property.images.length > 0 ? (
+                          <img
+                            src={property.images[0]}
+                            alt={property.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Home className="w-8 h-8 text-accent" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-text-primary font-body font-medium truncate">
+                          {property.name}
+                        </h4>
+                        <div className="flex items-center space-x-1 text-text-primary/70 text-sm">
+                          <MapPin className="w-3 h-3" />
+                          <span>{property.location}</span>
+                        </div>
+                        <p className="text-accent font-medium">
+                          {formatCurrency(property.price)}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-accent/30 text-accent"
+                        asChild
+                      >
+                        <Link to={`/property/${property.id}`}>View</Link>
+                      </Button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <Home className="w-12 h-12 text-text-primary/40 mx-auto mb-4" />
+                    <p className="text-text-primary/70 font-body">
+                      No recent properties
+                    </p>
+                    <p className="text-text-primary/50 text-sm">
+                      Browse properties to see them here
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -190,30 +264,26 @@ const ClientDashboard: React.FC = () => {
                     <Clock className="w-5 h-5 text-blue-400" />
                     <span>Recent Views</span>
                   </div>
-                  <Button asChild variant="outline" size="sm" className="border-accent/30 text-accent">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="border-accent/30 text-accent"
+                  >
                     <Link to="/dashboard/client/history">View All</Link>
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {mockViewingHistory.map((view) => (
-                  <div
-                    key={view.id}
-                    className="p-3 rounded-lg border border-accent/10 hover:border-accent/20 transition-colors"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="text-text-primary font-body font-medium">
-                        {view.propertyTitle}
-                      </h4>
-                      <span className="text-text-primary/50 text-xs">
-                        {view.duration}
-                      </span>
-                    </div>
-                    <p className="text-text-primary/70 text-sm">
-                      Viewed on {formatDate(view.viewDate)}
-                    </p>
-                  </div>
-                ))}
+                <div className="text-center py-8">
+                  <Clock className="w-12 h-12 text-text-primary/40 mx-auto mb-4" />
+                  <p className="text-text-primary/70 font-body">
+                    No viewing history yet
+                  </p>
+                  <p className="text-text-primary/50 text-sm">
+                    Your property viewing history will appear here
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -233,7 +303,12 @@ const ClientDashboard: React.FC = () => {
                     <Calendar className="w-5 h-5 text-green-400" />
                     <span>Upcoming Appointments</span>
                   </div>
-                  <Button asChild variant="outline" size="sm" className="border-accent/30 text-accent">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="border-accent/30 text-accent"
+                  >
                     <Link to="/dashboard/client/appointments">View All</Link>
                   </Button>
                 </CardTitle>
@@ -285,7 +360,12 @@ const ClientDashboard: React.FC = () => {
                   <Home className="w-5 h-5 text-accent" />
                   <span>Your Preferences</span>
                 </div>
-                <Button asChild variant="outline" size="sm" className="border-accent/30 text-accent">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="border-accent/30 text-accent"
+                >
                   <Link to="/dashboard/client/preferences">Edit</Link>
                 </Button>
               </CardTitle>
@@ -293,39 +373,62 @@ const ClientDashboard: React.FC = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <h4 className="text-text-primary font-body font-medium mb-2">Price Range</h4>
+                  <h4 className="text-text-primary font-body font-medium mb-2">
+                    Price Range
+                  </h4>
                   <p className="text-accent">
-                    {formatCurrency(mockClientPreferences.priceRange.min)} - {formatCurrency(mockClientPreferences.priceRange.max)}
+                    {formatCurrency(mockClientPreferences.priceRange.min)} -{" "}
+                    {formatCurrency(mockClientPreferences.priceRange.max)}
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-text-primary font-body font-medium mb-2">Locations</h4>
+                  <h4 className="text-text-primary font-body font-medium mb-2">
+                    Locations
+                  </h4>
                   <div className="flex flex-wrap gap-1">
                     {mockClientPreferences.locations.map((location) => (
-                      <Badge key={location} variant="outline" className="text-xs">
+                      <Badge
+                        key={location}
+                        variant="outline"
+                        className="text-xs"
+                      >
                         {location}
                       </Badge>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-text-primary font-body font-medium mb-2">Property Types</h4>
+                  <h4 className="text-text-primary font-body font-medium mb-2">
+                    Property Types
+                  </h4>
                   <div className="flex flex-wrap gap-1">
                     {mockClientPreferences.propertyTypes.map((type) => (
-                      <Badge key={type} variant="outline" className="text-xs capitalize">
+                      <Badge
+                        key={type}
+                        variant="outline"
+                        className="text-xs capitalize"
+                      >
                         {type}
                       </Badge>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-text-primary font-body font-medium mb-2">Amenities</h4>
+                  <h4 className="text-text-primary font-body font-medium mb-2">
+                    Amenities
+                  </h4>
                   <div className="flex flex-wrap gap-1">
-                    {mockClientPreferences.amenities.slice(0, 3).map((amenity) => (
-                      <Badge key={amenity} variant="outline" className="text-xs capitalize">
-                        {amenity}
-                      </Badge>
-                    ))}
+                    {mockClientPreferences.amenities
+                      .slice(0, 3)
+                      .map((amenity) => (
+                        <Badge
+                          key={amenity}
+                          variant="outline"
+                          className="text-xs capitalize"
+                        >
+                          {amenity}
+                        </Badge>
+                      ))}
                     {mockClientPreferences.amenities.length > 3 && (
                       <Badge variant="outline" className="text-xs">
                         +{mockClientPreferences.amenities.length - 3} more

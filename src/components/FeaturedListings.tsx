@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import PropertyCard from "./PropertyCard";
-import { properties } from "@/data/properties";
+import { Property } from "@/types";
+import { getProperties } from "@/lib/propertyService";
 import {
   Carousel,
   CarouselContent,
@@ -14,10 +15,34 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 
 const FeaturedListings = () => {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Load featured properties from Firebase
+  useEffect(() => {
+    const loadFeaturedProperties = async () => {
+      try {
+        setLoading(true);
+        // Get the first 6 available properties as featured
+        const { properties: fetchedProperties } = await getProperties(
+          { status: "available" },
+          6
+        );
+        setProperties(fetchedProperties || []);
+      } catch (error) {
+        console.error("Error loading featured properties:", error);
+        setProperties([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFeaturedProperties();
+  }, []);
 
   const autoplayPlugin = Autoplay({
     delay: 6000,
@@ -80,76 +105,130 @@ const FeaturedListings = () => {
             }}
           >
             <CarouselContent className="-ml-2 md:-ml-4">
-              {properties.map((property) => (
-                <CarouselItem
-                  key={property.id}
-                  className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3"
-                >
-                  <div className="p-1">
-                    <Link to={`/property/${property.id}`}>
-                      <motion.div
-                        whileHover={{
-                          scale: 1.02,
-                          transition: {
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 25,
-                          },
-                        }}
-                        className="relative h-96 rounded-lg overflow-hidden group cursor-pointer"
-                      >
-                        {/* Property Image */}
-                        <div
-                          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                          style={{ backgroundImage: `url(${property.image})` }}
-                        />
+              {loading ? (
+                // Loading skeleton
+                Array.from({ length: 3 }).map((_, index) => (
+                  <CarouselItem
+                    key={`loading-${index}`}
+                    className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3"
+                  >
+                    <div className="p-1">
+                      <div className="relative h-96 rounded-lg overflow-hidden bg-accent/10 animate-pulse">
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <div className="h-8 bg-accent/20 rounded mb-2"></div>
+                          <div className="h-4 bg-accent/20 rounded w-3/4"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))
+              ) : properties.length > 0 ? (
+                properties.map((property) => {
+                  const formatPrice = (price: number) => {
+                    return new Intl.NumberFormat("en-NG", {
+                      style: "currency",
+                      currency: "NGN",
+                      minimumFractionDigits: 0,
+                    }).format(price);
+                  };
 
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  const propertyImage =
+                    property.images && property.images.length > 0
+                      ? property.images[0]
+                      : property.image ||
+                        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800";
 
-                        {/* Content */}
-                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  return (
+                    <CarouselItem
+                      key={property.id}
+                      className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3"
+                    >
+                      <div className="p-1">
+                        <Link to={`/property/${property.id}`}>
                           <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6 }}
+                            whileHover={{
+                              scale: 1.02,
+                              transition: {
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 25,
+                              },
+                            }}
+                            className="relative h-96 rounded-lg overflow-hidden group cursor-pointer"
                           >
-                            <h3 className="font-heading text-2xl md:text-3xl mb-2 tracking-luxury">
-                              {property.price}
-                            </h3>
-                            <p className="font-body text-white/90 mb-4">
-                              {property.location}
-                            </p>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              <span className="inline-flex items-center font-body text-sm text-accent-brand uppercase tracking-wide">
-                                View Details →
-                              </span>
+                            {/* Property Image */}
+                            <div
+                              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                              style={{
+                                backgroundImage: `url(${propertyImage})`,
+                              }}
+                            />
+
+                            {/* Gradient Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                            {/* Status Badge */}
+                            {property.status &&
+                              property.status !== "available" && (
+                                <div className="absolute top-4 left-4">
+                                  <span
+                                    className={`px-3 py-1 rounded-full text-xs font-body text-white uppercase tracking-wide ${
+                                      property.status === "pending"
+                                        ? "bg-yellow-600"
+                                        : property.status === "sold"
+                                        ? "bg-red-600"
+                                        : "bg-green-600"
+                                    }`}
+                                  >
+                                    {property.status}
+                                  </span>
+                                </div>
+                              )}
+
+                            {/* Content */}
+                            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                              <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                              >
+                                <h3 className="font-heading text-2xl md:text-3xl mb-2 tracking-luxury">
+                                  {formatPrice(property.price)}
+                                </h3>
+                                <p className="font-body text-white/90 mb-4">
+                                  {property.location}
+                                </p>
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                  <span className="inline-flex items-center font-body text-sm text-accent-brand uppercase tracking-wide">
+                                    View Details →
+                                  </span>
+                                </div>
+                              </motion.div>
                             </div>
                           </motion.div>
-                        </div>
-
-                        {/* Status Badge */}
-                        {property.status && property.status !== "available" && (
-                          <div className="absolute top-4 left-4">
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-body text-white uppercase tracking-wide ${
-                                property.status === "pending"
-                                  ? "bg-yellow-600"
-                                  : property.status === "sold"
-                                  ? "bg-red-600"
-                                  : "bg-green-600"
-                              }`}
-                            >
-                              {property.status}
-                            </span>
-                          </div>
-                        )}
-                      </motion.div>
-                    </Link>
+                        </Link>
+                      </div>
+                    </CarouselItem>
+                  );
+                })
+              ) : (
+                // No properties found
+                <CarouselItem className="pl-2 md:pl-4 basis-full">
+                  <div className="p-1">
+                    <div className="relative h-96 rounded-lg overflow-hidden bg-accent/10 flex items-center justify-center">
+                      <div className="text-center">
+                        <p className="font-body text-text-primary/70 mb-2">
+                          No featured properties available
+                        </p>
+                        <p className="font-body text-text-primary/50 text-sm">
+                          Check back soon for new listings
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </CarouselItem>
-              ))}
+              )}
             </CarouselContent>
 
             {/* Navigation Arrows - Hidden on mobile */}

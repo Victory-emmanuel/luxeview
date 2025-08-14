@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -24,18 +25,65 @@ import PropertyCard from "@/components/PropertyCard";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { properties } from "@/data/properties";
+import { Property } from "@/types";
+import { getProperty, getProperties } from "@/lib/propertyService";
 import { companyInfo } from "@/data/company";
 
 const PropertyDetails = () => {
   const { id } = useParams();
-  const property = properties.find((p) => p.id === Number(id));
+  const [property, setProperty] = useState<Property | null>(null);
+  const [relatedProperties, setRelatedProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
   });
+
+  useEffect(() => {
+    const loadPropertyData = async () => {
+      if (!id) return;
+
+      try {
+        setLoading(true);
+
+        // Load the specific property
+        const fetchedProperty = await getProperty(id);
+        setProperty(fetchedProperty);
+
+        // Load related properties (same type or location)
+        if (fetchedProperty) {
+          const { properties: related } = await getProperties(
+            {
+              propertyType: fetchedProperty.propertyType,
+              status: "available",
+            },
+            4
+          );
+          // Filter out the current property
+          setRelatedProperties(related.filter((p) => p.id !== id));
+        }
+      } catch (error) {
+        console.error("Error loading property:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPropertyData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-text-primary/70 font-body">Loading property...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!property) {
     return (
@@ -54,11 +102,6 @@ const PropertyDetails = () => {
 
   // Use property's images array or fallback to main image
   const galleryImages = property.images || [property.image];
-
-  // Related properties (exclude current property)
-  const relatedProperties = properties
-    .filter((p) => p.id !== Number(id))
-    .slice(0, 3);
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -348,22 +391,38 @@ const PropertyDetails = () => {
               <div className="w-24 h-0.5 bg-accent mx-auto"></div>
             </motion.div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {relatedProperties.map((relatedProperty, index) => (
-                <motion.div
-                  key={relatedProperty.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                >
-                  <Link to={`/property/${relatedProperty.id}`}>
-                    <PropertyCard
-                      image={relatedProperty.image}
-                      price={relatedProperty.price}
-                      location={relatedProperty.location}
-                    />
-                  </Link>
-                </motion.div>
-              ))}
+              {relatedProperties.map((relatedProperty, index) => {
+                const formatPrice = (price: number) => {
+                  return new Intl.NumberFormat("en-NG", {
+                    style: "currency",
+                    currency: "NGN",
+                    minimumFractionDigits: 0,
+                  }).format(price);
+                };
+
+                const propertyImage =
+                  relatedProperty.images && relatedProperty.images.length > 0
+                    ? relatedProperty.images[0]
+                    : relatedProperty.image ||
+                      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800";
+
+                return (
+                  <motion.div
+                    key={relatedProperty.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  >
+                    <Link to={`/property/${relatedProperty.id}`}>
+                      <PropertyCard
+                        image={propertyImage}
+                        price={formatPrice(relatedProperty.price)}
+                        location={relatedProperty.location}
+                      />
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>
